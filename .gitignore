@@ -1,5 +1,5 @@
 *
 !.gitignore
 !README.md
-!test_dme_data.csv
+!/data/test_dme_data.csv
 !*.ipynb
