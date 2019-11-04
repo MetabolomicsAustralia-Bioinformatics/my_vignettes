@@ -14,10 +14,14 @@ data("kidney")
 
 Running section 2 from the [official `vsn` tutorial](https://bioconductor.org/packages/release/bioc/vignettes/vsn/inst/doc/A-vsn.html#assessing-the-performance-of-vsn). 
 
+* The data consists of 168 metabolites, 12 samples and 2 groups (6 samples per group). Groups are generically named "treatment" and "control".
+* The point of this vignette is just to see if mean and sd of each metabolite are correlated (as it turns out, they are). If so, normalize this correlation such that they are un-correlated (Student's t-test requires mean and s.d. to be independent). 
+
+
 ```{r}
+# read data
 tbl0 <- read_csv("/Users/don/Documents/my_vignettes/data/test_dme_data.csv") %>% replace(is.na(.), 0)
-```
-```{r}
+
 # Make `ExpressionSet` object
 m <- as.matrix(tbl0 %>% dplyr::select(-c("Sample", "Group")))
 rownames(m) <- as.vector(unlist(tbl0$Sample))
@@ -38,6 +42,8 @@ Now to normalize and inspect with meanSdPlot again:
 xnorm <- justvsn(my_data)
 meanSdPlot(xnorm, rank=TRUE)
 ```
+
+Preview normalized data:
 ```{r}
 head(exprs(xnorm))
 ```
