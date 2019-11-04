@@ -1,5 +1,8 @@
 *
 !.gitignore
 !README.md
+
+!*/
+
 !*/data/test_dme_data.csv
 !*.ipynb
