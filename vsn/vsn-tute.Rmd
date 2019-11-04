@@ -1,0 +1,71 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+suppressMessages(library("vsn"))
+suppressMessages(library("ggplot2"))
+suppressMessages(library("tidyverse"))
+data("kidney")
+```
+
+
+```{r}
+# Get an ExpressionSet object with calibrated and glog-2 transformed data
+xnorm = justvsn(kidney)
+
+# produce vector of generalized log-ratios betweend data in 1st and 2nd column
+M = exprs(xnorm)[,1] - exprs(xnorm)[,2]
+```
+
+```{r}
+allpositive = (rowSums(exprs(kidney) <= 0) == 0)
+
+df1 = data.frame(log2(exprs(kidney)[allpositive, ]),
+                 type = "raw",
+         allpositive = TRUE)
+df2 = data.frame(exprs(xnorm),
+                 type = "vsn",
+         allpositive = allpositive)
+df = rbind(df1, df2)
+names(df)[1:2] = c("x", "y") 
+
+ggplot(df, aes(x, y, col = allpositive)) + geom_hex(bins = 40) +
+  coord_fixed() + facet_grid( ~ type)
+
+```
+```{r}
+meanSdPlot(xnorm, ranks = FALSE) 
+```
+
+## Try with metab data
+
+```{r}
+tbl0 <- read_csv("/Users/don/Documents/my_vignettes/data/test_dme_data.csv") %>% replace(is.na(.), 0)
+```
+```{r}
+# Make `ExpressionSet` object
+m <- as.matrix(tbl0 %>% dplyr::select(-c("Sample", "Group")))
+rownames(m) <- as.vector(unlist(tbl0$Sample))
+my_data <- object<-new("ExpressionSet", exprs=t(m))
+```
+
+mean and sd of each metabolite are indeed positively correlated:
+
+```{r}
+# meanSdPlot() un-normalized data
+meanSdPlot(my_data, rank=TRUE)
+```
+
+Now to normalize and inspect with meanSdPlot again:
+
+```{r}
+# Normalize and meanSdPlot() data
+xnorm <- justvsn(my_data)
+meanSdPlot(xnorm, rank=TRUE)
+```
+```{r}
+head(exprs(xnorm))
+```
+

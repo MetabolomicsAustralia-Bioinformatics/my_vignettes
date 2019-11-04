@@ -5,4 +5,6 @@
 !*/
 
 !test_dme_data.csv
+!*.html
+!*.Rmd
 !*.ipynb
