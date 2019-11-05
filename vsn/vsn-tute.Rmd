@@ -26,6 +26,24 @@ tbl0 <- read_csv("/Users/don/Documents/my_vignettes/data/test_dme_data.csv") %>%
 m <- as.matrix(tbl0 %>% dplyr::select(-c("Sample", "Group")))
 rownames(m) <- as.vector(unlist(tbl0$Sample))
 my_data <- object<-new("ExpressionSet", exprs=t(m))
+
+xnorm <- justvsn(my_data)
+
+```
+```{r}
+allpositive = (rowSums(exprs(my_data) <= 0) == 0)
+
+df1 = data.frame(log2(exprs(my_data)[allpositive, ]),
+                 type = "raw",
+         allpositive = TRUE)
+df2 = data.frame(exprs(xnorm),
+                 type = "vsn",
+         allpositive = allpositive)
+df = rbind(df1, df2)
+names(df)[1:2] = c("x", "y") 
+
+ggplot(df, aes(x, y, col = allpositive)) + geom_point() +
+  coord_fixed() + facet_grid( ~ type)
 ```
 
 mean and sd of each metabolite are indeed positively correlated:
@@ -39,8 +57,7 @@ Now to normalize and inspect with meanSdPlot again:
 
 ```{r}
 # Normalize and meanSdPlot() data
-xnorm <- justvsn(my_data)
-meanSdPlot(xnorm, rank=TRUE)
+meanSdPlot(justvsn(my_data), rank=TRUE)
 ```
 
 Preview normalized data:
