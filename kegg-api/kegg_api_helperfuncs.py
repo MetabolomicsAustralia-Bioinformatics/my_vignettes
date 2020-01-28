@@ -78,7 +78,7 @@ def get_pw_info(pw_id):
     return out_dict
 
 
-def get_kegg_pathway_mapped_png(pw, gene_id_dict, fn_out, fn_out_format=".png", verbose=True):
+def get_kegg_pathway_mapped_png(pw, feature_id_dict, fn_out, fn_out_format=".png", verbose=True):
     """Given a KEGG pathway ID and a dictionary of features with hexcode colours,
     Make POST call to KEGG and retrieve .png of data-mapped KEGG pathway.
     Note: this executes just fine even if certain input features that are passed through the constructed url
@@ -87,8 +87,8 @@ def get_kegg_pathway_mapped_png(pw, gene_id_dict, fn_out, fn_out_format=".png", 
     PARAMS
     ------
     pw: str; ID of KEGG Pathway, e.g. "hsa00010"
-    gene_id_dict: dictionary of gene feature colours. Keys are any KEGG-recognized ID, e.g.
-    EntrezIDs, KEGG compound IDs, values are hex colour codes, e.g. '#ff0000'.
+    feature_id_dict: dictionary of gene feature colours. Keys are any KEGG-recognized ID, e.g.
+    EntrezIDs, KEGG compound IDs for genes/proteins/compounds. values are hex colour codes, e.g. '#ff0000'.
     fn_out: str; output filename
     fn_out_format: str; file format of output filename
     verbose: bool; verbosity parameter.
@@ -98,21 +98,21 @@ def get_kegg_pathway_mapped_png(pw, gene_id_dict, fn_out, fn_out_format=".png", 
     Does not have an object returned; saves the Image.img output to file instead.
     """
     # input sanity check
-    n_keys = len(gene_id_dict.keys())
-    n_uq_keys = len(np.unique(list(gene_id_dict.keys())))
+    n_keys = len(feature_id_dict.keys())
+    n_uq_keys = len(np.unique(list(feature_id_dict.keys())))
     if n_keys != n_uq_keys:
         print("WARNING: %s duplicate keys (features) detected in input dictionary" % (n_keys - n_uq_keys))
 
     # Form url for GET request
     multiquery_ls = ["&multi_query="]
-    for k in list(gene_id_dict.keys()):
-        new_str = str(k)+"+"+gene_id_dict[k].replace("#", "%23")
+    for k in list(feature_id_dict.keys()):
+        new_str = str(k)+"+"+feature_id_dict[k].replace("#", "%23")
         multiquery_ls.append(new_str)
     multi_query_str = "%0d%0a".join(multiquery_ls)
 
     url = "https://www.kegg.jp/kegg-bin/show_pathway?map="+pw+multi_query_str
     if verbose:
-        print("Mapping %s features to %s" % (len(gene_id_dict.keys()), pw), end="...")
+        print("Mapping %s features to %s" % (len(feature_id_dict.keys()), pw), end="...")
     r = requests.get(url)
     if r.status_code == 200:
         if verbose:
